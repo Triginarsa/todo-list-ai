@@ -100,7 +100,7 @@ export default function AddTaskInline({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Card className="space-y-2 p-2 my-2 rounded-xl pt-4">
+        <Card className="w-full space-y-2 p-2 my-2 rounded-xl pt-4">
           <CardContent>
             <FormField
               control={form.control}
@@ -109,7 +109,7 @@ export default function AddTaskInline({
                 <FormItem>
                   <FormControl>
                     <Input
-                      className="focus-visible:ring-0 ring-0 border-0 font-semibold text-lg"
+                      className="focus-visible:ring-0 ring-0 border-0 border-border/0 font-semibold text-lg"
                       id="taskName"
                       placeholder="Enter your Task name"
                       {...field}
@@ -129,7 +129,7 @@ export default function AddTaskInline({
                     <div className="flex items-start gap-2">
                       <Text className="w-4 h-4 ml-3 mt-3 opacity-50" />
                       <Textarea
-                        className="focus-visible:ring-0 ring-0 border-0 resize-none"
+                        className="focus-visible:ring-0 ring-0 border-0 border-border/0 resize-none"
                         placeholder="Enter your Task name"
                         {...field}
                       />
@@ -139,7 +139,7 @@ export default function AddTaskInline({
                 </FormItem>
               )}
             />
-            <div className="flex gap-2 mt-4">
+            <div className="flex flex-col md:flex-row gap-2 mt-4">
               <FormField
                 control={form.control}
                 name="dueDate"

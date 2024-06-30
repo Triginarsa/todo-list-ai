@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import UserProfile from "./user-profile";
 import { primaryNavItems } from "@/utils";
+import { Github } from "lucide-react";
 
 export default function Sidebar() {
   return (
@@ -40,16 +40,21 @@ export default function Sidebar() {
         <div className="mt-auto p-4">
           <Card x-chunk="dashboard-02-chunk-0">
             <CardHeader className="p-2 pt-0 md:p-4">
-              <CardTitle>Upgrade to Pro</CardTitle>
+              <CardTitle>Star on Github</CardTitle>
               <CardDescription>
-                Unlock all features and get unlimited access to our support
-                team.
+                Show your support by starring this project on Github
               </CardDescription>
             </CardHeader>
             <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
-              <Button size="sm" className="w-full">
-                Upgrade
-              </Button>
+              <a
+                href="https://github.com/Triginarsa/todo-list-ai"
+                target="_blank"
+              >
+                <Button size="sm" variant={"secondary"} className="w-full">
+                  <Github className="w-4 h-4 mr-2 " />
+                  Visit Github
+                </Button>
+              </a>
             </CardContent>
           </Card>
         </div>

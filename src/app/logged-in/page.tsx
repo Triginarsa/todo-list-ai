@@ -1,4 +1,3 @@
-import Task from "@/components/main/task";
 import MobileNavbar from "@/components/nav/mobile-navbar";
 import Sidebar from "@/components/nav/sidebar";
 import TodoList from "@/components/todos/todo-list";

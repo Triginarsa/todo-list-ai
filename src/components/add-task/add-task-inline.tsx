@@ -64,6 +64,15 @@ export default function AddTaskInline({
 
   const createATodoMutation = useMutation(api.todos.createATodo);
 
+  const defaultValues = {
+    taskName: "",
+    description: "",
+    priority: "3",
+    dueDate: new Date(),
+    projectId: "k17ch9ed55btcgnct2t5v8jdbs6w0vwp" as Id<"projects">,
+    labelId: "jx71gafy5py7cak8q8mem7xetn6w144y" as Id<"labels">,
+  };
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -93,6 +102,7 @@ export default function AddTaskInline({
         toast("✅ Create a Task!", {
           description: taskName,
         });
+        form.reset({ ...defaultValues });
       }
     }
   }

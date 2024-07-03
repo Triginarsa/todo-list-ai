@@ -1,6 +1,8 @@
+import { GenericQueryCtx } from "convex/server";
 import { Id } from "./_generated/dataModel";
 import { query, mutation } from "./_generated/server";
-import { v } from "convex/values";
+import { GenericId, v } from "convex/values";
+import { handleUserId } from "./auth";
 
 export const get = query({
   args: {},
@@ -12,8 +14,13 @@ export const get = query({
 export const inCompletedTodos = query({
   args: {},
   handler: async (ctx) => {
+    const userId = await handleUserId(ctx);
+    if (!userId) {
+      return [];
+    }
     return await ctx.db
       .query("todos")
+      .filter((q) => q.eq(q.field("userId"), userId))
       .filter((q) => q.eq(q.field("isCompleted"), false))
       .collect();
   },
@@ -22,8 +29,13 @@ export const inCompletedTodos = query({
 export const completedTodos = query({
   args: {},
   handler: async (ctx) => {
+    const userId = await handleUserId(ctx);
+    if (!userId) {
+      return [];
+    }
     return await ctx.db
       .query("todos")
+      .filter((q) => q.eq(q.field("userId"), userId))
       .filter((q) => q.eq(q.field("isCompleted"), true))
       .collect();
   },
@@ -32,8 +44,13 @@ export const completedTodos = query({
 export const totalTodos = query({
   args: {},
   handler: async (ctx) => {
+    const userId = await handleUserId(ctx);
+    if (!userId) {
+      return 0;
+    }
     const todos = await ctx.db
       .query("todos")
+      .filter((q) => q.eq(q.field("userId"), userId))
       .filter((q) => q.eq(q.field("isCompleted"), true))
       .collect();
     return todos.length || 0;
@@ -71,8 +88,12 @@ export const createATodo = mutation({
     { taskName, description, priority, dueDate, projectId, labelId }
   ) => {
     try {
+      const userId = await handleUserId(ctx);
+      if (!userId) {
+        return null;
+      }
       const newTaskId = await ctx.db.insert("todos", {
-        userId: "jn73a35ahwxdbsyg0jps8vzr216w1v2r" as Id<"users">,
+        userId,
         taskName,
         description,
         priority,

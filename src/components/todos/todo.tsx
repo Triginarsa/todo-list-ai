@@ -5,9 +5,10 @@ import { Dialog, DialogTrigger } from "@radix-ui/react-dialog";
 import clsx from "clsx";
 import { GitBranch, Calendar } from "lucide-react";
 import moment from "moment";
+import AddTaskDialog from "../add-task/add-task-dialog";
 
 type Props = {
-  data: Doc<"todos"> | Doc<"subTodos">;
+  data: Doc<"todos">;
   isCompleted?: boolean;
   handleOnChange: any;
   showDetails?: boolean;
@@ -65,6 +66,7 @@ function Todo({
             </DialogTrigger>
           </div>
           {/* {!isSubTodo(data) && <AddTaskDialog data={data} />} */}
+          <AddTaskDialog data={data} />
         </div>
       </Dialog>
     </div>

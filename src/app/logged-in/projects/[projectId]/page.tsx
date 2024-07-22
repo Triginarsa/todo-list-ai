@@ -12,6 +12,7 @@ import { Id } from "../../../../../convex/_generated/dataModel";
 import Todos from "@/components/todos/todos";
 import { AddTaskWrapper } from "@/components/add-task/add-task-button";
 import CompletedTodos from "@/components/todos/completed-todos";
+import SuggestMissingTaskButton from "@/components/add-task/suggest-missing-task-button";
 
 export default function ProjectIdPage() {
   const { projectId } = useParams<{
@@ -41,6 +42,9 @@ export default function ProjectIdPage() {
         <main className="flex flex-1 flex-col gap-4 p-4 lg:px-8">
           <div className="flex items-center justify-between">
             <h1 className="text-lg font-semibold md:text-2xl">{projectName}</h1>
+            <div className="flex gap-6 lg:gap-12 items-center">
+              <SuggestMissingTaskButton projectId={projectId} />
+            </div>
           </div>
           <div className="flex flex-col gap-1 p-4">
             <Todos items={inCompletedTodosByProject} />

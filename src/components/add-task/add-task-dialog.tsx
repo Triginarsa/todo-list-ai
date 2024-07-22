@@ -24,7 +24,8 @@ type Details = {
 };
 
 export default function AddTaskDialog({ data }: { data: Doc<"todos"> }) {
-  const { taskName, description, dueDate, priority, projectId, labelId } = data;
+  const { _id, taskName, description, dueDate, priority, projectId, labelId } =
+    data;
   const project = useQuery(api.projects.getProjectByProjectId, {
     projectId: data.projectId,
   });
@@ -34,10 +35,10 @@ export default function AddTaskDialog({ data }: { data: Doc<"todos"> }) {
   });
 
   const inCompletedSubTodosByProject =
-    useQuery(api.subTodos.inCompletedSubTodos) ?? [];
+    useQuery(api.subTodos.inCompletedSubTodos, { parentId: _id }) ?? [];
 
   const completedSubTodosByProject =
-    useQuery(api.subTodos.completedSubTodos) ?? [];
+    useQuery(api.subTodos.completedSubTodos, { parentId: _id }) ?? [];
 
   const checkASubTodoMutation = useMutation(api.subTodos.checkASubTodo);
 

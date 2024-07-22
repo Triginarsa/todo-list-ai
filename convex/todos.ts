@@ -19,6 +19,23 @@ export const get = query({
   },
 });
 
+export const getTodosByProjectId = query({
+  args: {
+    projectId: v.id("projects"),
+  },
+  handler: async (ctx, { projectId }) => {
+    const userId = await handleUserId(ctx);
+    if (!userId) {
+      return [];
+    }
+    return await ctx.db
+      .query("todos")
+      .filter((q) => q.eq(q.field("userId"), userId))
+      .filter((q) => q.eq(q.field("projectId"), projectId))
+      .collect();
+  },
+});
+
 export const getInCompletedTodosByProjectId = query({
   args: {
     projectId: v.id("projects"),

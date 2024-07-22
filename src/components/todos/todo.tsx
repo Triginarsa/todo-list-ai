@@ -8,11 +8,17 @@ import moment from "moment";
 import AddTaskDialog from "../add-task/add-task-dialog";
 
 type Props = {
-  data: Doc<"todos">;
+  data: Doc<"todos"> | Doc<"subTodos">;
   isCompleted?: boolean;
   handleOnChange: any;
   showDetails?: boolean;
 };
+
+function isSubTodo(
+  data: Doc<"todos"> | Doc<"subTodos">
+): data is Doc<"subTodos"> {
+  return "parentId" in data;
+}
 
 function Todo({
   data,
@@ -65,8 +71,8 @@ function Todo({
               </div>
             </DialogTrigger>
           </div>
-          {/* {!isSubTodo(data) && <AddTaskDialog data={data} />} */}
-          <AddTaskDialog data={data} />
+          {!isSubTodo(data) && <AddTaskDialog data={data} />}
+          {/* {!data?.parentId && <AddTaskDialog data={data} />} */}
         </div>
       </Dialog>
     </div>

@@ -3,11 +3,57 @@ import { Id } from "./_generated/dataModel";
 import { query, mutation } from "./_generated/server";
 import { GenericId, v } from "convex/values";
 import { handleUserId } from "./auth";
+import moment from "moment";
 
 export const get = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db.query("todos").collect();
+    const userId = await handleUserId(ctx);
+    if (!userId) {
+      return [];
+    }
+    return await ctx.db
+      .query("todos")
+      .filter((q) => q.eq(q.field("userId"), userId))
+      .collect();
+  },
+});
+
+export const todayTodos = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await handleUserId(ctx);
+    const todayStart = moment().startOf("day");
+    const todayEnd = moment().endOf("day");
+    if (!userId) {
+      return [];
+    }
+    return await ctx.db
+      .query("todos")
+      .filter((q) => q.eq(q.field("userId"), userId))
+      .filter(
+        (q) =>
+          q.lte(q.field("dueDate"), todayStart.valueOf()) &&
+          q.gte(q.field("dueDate"), todayEnd.valueOf())
+      )
+      .collect();
+  },
+});
+
+export const overdueTodos = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await handleUserId(ctx);
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    if (!userId) {
+      return [];
+    }
+    return await ctx.db
+      .query("todos")
+      .filter((q) => q.eq(q.field("userId"), userId))
+      .filter((q) => q.lt(q.field("dueDate"), todayStart.getTime()))
+      .collect();
   },
 });
 
@@ -104,7 +150,8 @@ export const createATodo = mutation({
       });
       return newTaskId;
     } catch (error) {
-      return error;
+      console.log("Error in createATodo", error);
+      return null;
     }
   },
 });

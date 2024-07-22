@@ -56,21 +56,31 @@ const FormSchema = z.object({
 
 export default function AddTaskInline({
   setShowAddTask,
+  parentTask,
 }: {
   setShowAddTask: Dispatch<SetStateAction<boolean>>;
+  parentTask?: Doc<"todos">;
 }) {
+  const projectId =
+    parentTask?.projectId ||
+    ("k17ch9ed55btcgnct2t5v8jdbs6w0vwp" as Id<"projects">);
+  const labelId =
+    parentTask?.labelId || ("jx71gafy5py7cak8q8mem7xetn6w144y" as Id<"labels">);
+  const priority = parentTask?.priority?.toString() || "3";
+  const parentId = parentTask?._id;
   const projects = useQuery(api.projects.getProjects) ?? [];
   const labels = useQuery(api.labels.getLabels) ?? [];
 
   const createATodoMutation = useMutation(api.todos.createATodo);
+  const createASubTodoMutation = useMutation(api.subTodos.createASubTodo);
 
   const defaultValues = {
     taskName: "",
     description: "",
-    priority: "3",
+    priority,
     dueDate: new Date(),
-    projectId: "k17ch9ed55btcgnct2t5v8jdbs6w0vwp" as Id<"projects">,
-    labelId: "jx71gafy5py7cak8q8mem7xetn6w144y" as Id<"labels">,
+    projectId,
+    labelId,
   };
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -78,7 +88,7 @@ export default function AddTaskInline({
     defaultValues: {
       taskName: "",
       description: "",
-      priority: "3",
+      priority,
       dueDate: new Date(),
       projectId: "k17ch9ed55btcgnct2t5v8jdbs6w0vwp" as Id<"projects">,
       labelId: "jx71gafy5py7cak8q8mem7xetn6w144y" as Id<"labels">,
@@ -90,19 +100,37 @@ export default function AddTaskInline({
       data;
 
     if (projectId) {
-      const mutationId = createATodoMutation({
-        taskName,
-        description,
-        priority: parseInt(priority),
-        dueDate: moment(dueDate).valueOf(),
-        projectId: projectId as Id<"projects">,
-        labelId: labelId as Id<"labels">,
-      });
-      if (mutationId !== undefined) {
-        toast("✅ Create a Task!", {
-          description: taskName,
+      if (parentId) {
+        const mutationId = createASubTodoMutation({
+          taskName,
+          description,
+          priority: parseInt(priority),
+          dueDate: moment(dueDate).valueOf(),
+          projectId: projectId as Id<"projects">,
+          labelId: labelId as Id<"labels">,
+          parentId: parentId as Id<"todos">,
         });
-        form.reset({ ...defaultValues });
+        if (mutationId !== undefined) {
+          toast("✅ Create a Sub Task!", {
+            description: taskName,
+          });
+          form.reset({ ...defaultValues });
+        }
+      } else {
+        const mutationId = createATodoMutation({
+          taskName,
+          description,
+          priority: parseInt(priority),
+          dueDate: moment(dueDate).valueOf(),
+          projectId: projectId as Id<"projects">,
+          labelId: labelId as Id<"labels">,
+        });
+        if (mutationId !== undefined) {
+          toast("✅ Create a Task!", {
+            description: taskName,
+          });
+          form.reset({ ...defaultValues });
+        }
       }
     }
   }
@@ -221,7 +249,7 @@ export default function AddTaskInline({
                   <FormItem>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      defaultValue={labelId || field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -251,7 +279,7 @@ export default function AddTaskInline({
                 <FormItem className="w-full lg:w-[300px]">
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    defaultValue={projectId || field.value}
                   >
                     <FormControl>
                       <SelectTrigger>

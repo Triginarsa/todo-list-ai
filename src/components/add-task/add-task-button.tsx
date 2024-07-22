@@ -3,21 +3,31 @@ import React, { Dispatch, SetStateAction, useState } from "react";
 import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
 import AddTaskInline from "./add-task-inline";
+import { Doc, Id } from "../../../convex/_generated/dataModel";
 
-export const AddTaskWrapper = () => {
+export const AddTaskWrapper = ({
+  parentTask,
+}: {
+  parentTask?: Doc<"todos">;
+}) => {
   const [showAddTask, setShowAddTask] = useState(false);
 
   return showAddTask ? (
-    <AddTaskInline setShowAddTask={setShowAddTask} />
+    <AddTaskInline setShowAddTask={setShowAddTask} parentTask={parentTask} />
   ) : (
-    <AddTaskButton onClick={() => setShowAddTask(true)} />
+    <AddTaskButton
+      onClick={() => setShowAddTask(true)}
+      title={parentTask?._id ? "Add Sub Task" : "Add Task"}
+    />
   );
 };
 
 export default function AddTaskButton({
   onClick,
+  title,
 }: {
   onClick: Dispatch<SetStateAction<any>>;
+  title: string;
 }) {
   return (
     <div>
@@ -30,7 +40,7 @@ export default function AddTaskButton({
           <div className="flex items-center gap-2 justify-center">
             <Plus className="w-4 h-4 text-primary group-hover:bg-primary group-hover:rounded-full group-hover:text-white" />
             <span className="text-base font-light tracking-tight text-foreground/70">
-              Add Task
+              {title}
             </span>
           </div>
         </div>

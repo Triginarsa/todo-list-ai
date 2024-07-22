@@ -19,6 +19,62 @@ export const get = query({
   },
 });
 
+export const getInCompletedTodosByProjectId = query({
+  args: {
+    projectId: v.id("projects"),
+  },
+  handler: async (ctx, { projectId }) => {
+    const userId = await handleUserId(ctx);
+    if (!userId) {
+      return [];
+    }
+    return await ctx.db
+      .query("todos")
+      .filter((q) => q.eq(q.field("userId"), userId))
+      .filter((q) => q.eq(q.field("projectId"), projectId))
+      .filter((q) => q.eq(q.field("isCompleted"), false))
+      .collect();
+  },
+});
+
+export const getCompletedTodosByProjectId = query({
+  args: {
+    projectId: v.id("projects"),
+  },
+  handler: async (ctx, { projectId }) => {
+    const userId = await handleUserId(ctx);
+    if (!userId) {
+      return [];
+    }
+    return await ctx.db
+      .query("todos")
+      .filter((q) => q.eq(q.field("userId"), userId))
+      .filter((q) => q.eq(q.field("projectId"), projectId))
+      .filter((q) => q.eq(q.field("isCompleted"), true))
+      .collect();
+  },
+});
+
+export const getTodosTotalByProjectId = query({
+  args: {
+    projectId: v.id("projects"),
+  },
+  handler: async (ctx, { projectId }) => {
+    const userId = await handleUserId(ctx);
+    if (!userId) {
+      return 0;
+    }
+    const todos = await ctx.db
+      .query("todos")
+      .filter((q) => q.eq(q.field("userId"), userId))
+      .filter((q) => q.eq(q.field("projectId"), projectId))
+      .filter((q) => q.eq(q.field("isCompleted"), true))
+      .collect();
+
+    return todos?.length || 0;
+  },
+});
+
 export const todayTodos = query({
   args: {},
   handler: async (ctx) => {
@@ -54,6 +110,29 @@ export const overdueTodos = query({
       .filter((q) => q.eq(q.field("userId"), userId))
       .filter((q) => q.lt(q.field("dueDate"), todayStart.getTime()))
       .collect();
+  },
+});
+
+export const groupTodosByDate = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await handleUserId(ctx);
+    if (!userId) {
+      return [];
+    }
+    const todos = await ctx.db
+      .query("todos")
+      .filter((q) => q.eq(q.field("userId"), userId))
+      .filter((q) => q.gt(q.field("dueDate"), new Date().getTime()))
+      .collect();
+
+    const groupedTodos = todos.reduce<any>((acc, todo) => {
+      const dueDate = todo.dueDate ? new Date(todo.dueDate).toDateString() : "";
+      acc[dueDate] = (acc[dueDate] || []).concat(todo);
+      return acc;
+    }, {});
+
+    return groupedTodos;
   },
 });
 

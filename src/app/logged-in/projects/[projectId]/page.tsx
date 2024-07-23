@@ -27,13 +27,13 @@ export default function ProjectIdPage() {
 
   const project = useQuery(api.projects.getProjectByProjectId, { projectId });
   const projectName = project?.name ?? "Untitled Project";
-  if (
-    !inCompletedTodosByProject ||
-    !completedTodosByProject ||
-    !todosTotalByProject
-  ) {
-    return <div>Loading...</div>;
-  }
+  // if (
+  //   !inCompletedTodosByProject ||
+  //   !completedTodosByProject ||
+  //   !todosTotalByProject
+  // ) {
+  //   return <div>Loading...</div>;
+  // }
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <Sidebar />

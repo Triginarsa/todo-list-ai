@@ -44,11 +44,11 @@ export const suggestMissingTasksWithAi = action({
       return [];
     }
 
-    const items = JSON.parse(messageContent)?.todos ?? [];
+    const todosAI = JSON.parse(messageContent)?.todos ?? [];
     const AI_LABEL_ID: Id<"labels"> =
       "jx76ne8482zffsgaj625m0gjzx6xd5mn" as Id<"labels">;
-    for (const item of items) {
-      const { taskName, description } = item;
+    for (const todoAI of todosAI) {
+      const { taskName, description } = todoAI;
       await ctx.runMutation(api.todos.createATodo, {
         projectId,
         taskName,

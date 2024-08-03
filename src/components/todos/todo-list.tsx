@@ -6,9 +6,9 @@ import CompletedTodos from "./completed-todos";
 import { AddTaskWrapper } from "../add-task/add-task-button";
 
 export default function TodoList() {
-  const todos = useQuery(api.todos.get);
-  const completedTodos = useQuery(api.todos.completedTodos);
-  const inCompletedTodos = useQuery(api.todos.inCompletedTodos);
+  const todos = useQuery(api.todos.get) ?? [];
+  const completedTodos = useQuery(api.todos.completedTodos) ?? [];
+  const inCompletedTodos = useQuery(api.todos.inCompletedTodos) ?? [];
   const totalTodos = useQuery(api.todos.totalTodos) ?? 0;
 
   if (!todos || !completedTodos || !inCompletedTodos) {

@@ -43,7 +43,7 @@ export default function ProjectIdPage() {
           <div className="flex items-center justify-between">
             <h1 className="text-lg font-semibold md:text-2xl">{projectName}</h1>
             <div className="flex gap-6 lg:gap-12 items-center">
-              <SuggestMissingTaskButton projectId={projectId} />
+              {/* <SuggestMissingTaskButton projectId={projectId} /> */}
             </div>
           </div>
           <div className="flex flex-col gap-1 p-4">

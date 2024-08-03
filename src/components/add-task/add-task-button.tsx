@@ -1,9 +1,9 @@
 "use client";
-import React, { Dispatch, SetStateAction, useState } from "react";
-import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
+import { Dispatch, SetStateAction, useState } from "react";
+import { Doc } from "../../../convex/_generated/dataModel";
+import { Button } from "../ui/button";
 import AddTaskInline from "./add-task-inline";
-import { Doc, Id } from "../../../convex/_generated/dataModel";
 
 export const AddTaskWrapper = ({
   parentTask,

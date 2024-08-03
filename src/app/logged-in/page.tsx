@@ -1,8 +1,6 @@
 import MobileNavbar from "@/components/nav/mobile-navbar";
 import Sidebar from "@/components/nav/sidebar";
 import TodoList from "@/components/todos/todo-list";
-import { Button } from "@/components/ui/button";
-import React from "react";
 
 export default function LoggedInPage() {
   return (

@@ -7,14 +7,27 @@ import { api } from "../../../convex/_generated/api";
 
 type Props = {
   projectId: Id<"projects">;
+  isSubTask?: boolean;
+  taskName?: string;
+  description?: string;
+  parentId: Id<"todos">;
 };
 
-export default function SuggestMissingTaskButton({ projectId }: Props) {
+export default function SuggestMissingTaskButton({
+  projectId,
+  isSubTask = false,
+  taskName = "",
+  description = "",
+  parentId,
+}: Props) {
   const [isLoadingSuggestMissingTask, setIsLoadingSuggestMissingTask] =
     React.useState(false);
 
   const suggestMissingTasks =
     useAction(api.openai.suggestMissingTasksWithAi) ?? [];
+
+  const suggestMissingSubTasks =
+    useAction(api.openai.suggestMissingSubTasksWithAi) ?? [];
 
   const handleSuggestMissingTask = async () => {
     setIsLoadingSuggestMissingTask(true);
@@ -27,11 +40,29 @@ export default function SuggestMissingTaskButton({ projectId }: Props) {
     }
   };
 
+  const handleSuggestMissingSubTask = async () => {
+    setIsLoadingSuggestMissingTask(true);
+    try {
+      await suggestMissingSubTasks({
+        projectId,
+        taskName,
+        description,
+        parentId,
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoadingSuggestMissingTask(false);
+    }
+  };
+
   return (
     <>
       <Button
         variant={"outline"}
-        onClick={handleSuggestMissingTask}
+        onClick={
+          isSubTask ? handleSuggestMissingSubTask : handleSuggestMissingTask
+        }
         disabled={isLoadingSuggestMissingTask}
       >
         {isLoadingSuggestMissingTask ? (

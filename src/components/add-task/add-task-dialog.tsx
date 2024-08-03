@@ -16,6 +16,7 @@ import { useMutation, useQuery } from "convex/react";
 import { Button } from "../ui/button";
 import Todo from "../todos/todo";
 import { AddTaskWrapper } from "./add-task-button";
+import SuggestMissingTaskButton from "./suggest-missing-task-button";
 
 type Details = {
   labelName: string;
@@ -84,7 +85,13 @@ export default function AddTaskDialog({ data }: { data: Doc<"todos"> }) {
               <p className="font-bold flex text-sm text-gray-900">Sub-Tasks</p>
             </div>
             <div>
-              <Button variant={"outline"}>Suggest Missing Tasks (AI)</Button>
+              <SuggestMissingTaskButton
+                projectId={data.projectId}
+                parentId={data._id}
+                taskName={data.taskName}
+                description={data.description}
+                isSubTask={true}
+              />
             </div>
           </div>
           <div className="pl-4">

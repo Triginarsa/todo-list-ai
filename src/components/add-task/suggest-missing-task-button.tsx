@@ -10,7 +10,7 @@ type Props = {
   isSubTask?: boolean;
   taskName?: string;
   description?: string;
-  parentId: Id<"todos">;
+  parentId?: Id<"todos">;
 };
 
 export default function SuggestMissingTaskButton({
@@ -43,6 +43,9 @@ export default function SuggestMissingTaskButton({
   const handleSuggestMissingSubTask = async () => {
     setIsLoadingSuggestMissingTask(true);
     try {
+      if (!parentId) {
+        return;
+      }
       await suggestMissingSubTasks({
         projectId,
         taskName,

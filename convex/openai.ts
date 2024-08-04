@@ -4,7 +4,8 @@ import { action } from "./_generated/server";
 import { OpenAI } from "openai";
 import { Id } from "./_generated/dataModel";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const apiKey = process.env.OPENAI_API_KEY;
+const openai = new OpenAI({ apiKey });
 
 export const suggestMissingTasksWithAi = action({
   args: {
@@ -15,6 +16,12 @@ export const suggestMissingTasksWithAi = action({
     const todos = await ctx.runQuery(api.todos.getTodosByProjectId, {
       projectId: projectId,
     });
+
+    const project = await ctx.runQuery(api.projects.getProjectByProjectId, {
+      projectId: projectId,
+    });
+
+    const projectName = project?.name || "";
 
     // retrieve todos from openai
     const response = await openai.chat.completions.create({
@@ -27,7 +34,10 @@ export const suggestMissingTasksWithAi = action({
         },
         {
           role: "user",
-          content: JSON.stringify(todos),
+          content: JSON.stringify({
+            todos,
+            projectName,
+          }),
         },
       ],
       response_format: {
@@ -49,6 +59,7 @@ export const suggestMissingTasksWithAi = action({
       "jx76ne8482zffsgaj625m0gjzx6xd5mn" as Id<"labels">;
     for (const todoAI of todosAI) {
       const { taskName, description } = todoAI;
+      const embedding = await getEmbeddingsWithAi(taskName);
       await ctx.runMutation(api.todos.createATodo, {
         projectId,
         taskName,
@@ -56,6 +67,7 @@ export const suggestMissingTasksWithAi = action({
         priority: 3,
         dueDate: new Date().getTime(),
         labelId: AI_LABEL_ID,
+        embedding,
       });
     }
   },
@@ -117,6 +129,7 @@ export const suggestMissingSubTasksWithAi = action({
       "jx76ne8482zffsgaj625m0gjzx6xd5mn" as Id<"labels">;
     for (const todoAI of todosAI) {
       const { taskName, description } = todoAI;
+      const embedding = await getEmbeddingsWithAi(taskName);
       await ctx.runMutation(api.subTodos.createASubTodo, {
         projectId,
         parentId: parentId,
@@ -125,7 +138,41 @@ export const suggestMissingSubTasksWithAi = action({
         priority: 3,
         dueDate: new Date().getTime(),
         labelId: AI_LABEL_ID,
+        embedding,
       });
     }
   },
 });
+
+export const getEmbeddingsWithAi = async (searchText: string) => {
+  if (!apiKey) {
+    throw new Error("API key is not set");
+  }
+
+  const req = {
+    input: searchText,
+    model: "text-embedding-ada-002",
+    encoding_format: "float",
+  };
+
+  const response = await fetch("https://api.openai.com/v1/embeddings", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify(req),
+  });
+
+  if (!response.ok) {
+    const msg = await response.text();
+    throw new Error(`Failed to fetch embeddings, ${msg}`);
+  }
+
+  const json = await response.json();
+  const vector = json["data"][0]["embedding"];
+
+  console.log(`Embedding of ${searchText}: ${vector.length} dimensions`);
+
+  return vector;
+};

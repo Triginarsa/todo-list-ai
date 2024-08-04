@@ -9,7 +9,7 @@ import {
 } from "../ui/dialog";
 import { Doc } from "../../../convex/_generated/dataModel";
 import { Label } from "@radix-ui/react-dropdown-menu";
-import { Calendar, ChevronDown, Flag, Hash, Tag } from "lucide-react";
+import { Calendar, ChevronDown, Flag, Hash, Tag, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { api } from "../../../convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
@@ -17,6 +17,7 @@ import { Button } from "../ui/button";
 import Todo from "../todos/todo";
 import { AddTaskWrapper } from "./add-task-button";
 import SuggestMissingTaskButton from "./suggest-missing-task-button";
+import { toast } from "sonner";
 
 type Details = {
   labelName: string;
@@ -45,6 +46,8 @@ export default function AddTaskDialog({ data }: { data: Doc<"todos"> }) {
 
   const unCheckASubTodoMutation = useMutation(api.subTodos.unCheckASubTodo);
 
+  const deleteATodoMutation = useMutation(api.todos.deleteATodo);
+
   const [todoDetails, setTodoDetails] = useState<Details[]>([]);
 
   useEffect(() => {
@@ -72,6 +75,16 @@ export default function AddTaskDialog({ data }: { data: Doc<"todos"> }) {
     ];
     setTodoDetails(details);
   }, [data.dueDate, data.priority, label?.name, project]);
+
+  const handleDeleteTodo = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const deletedTodoId = deleteATodoMutation({ todoId: data._id });
+    if (deletedTodoId! !== undefined) {
+      toast("🗑️ Task Deleted!", {
+        description: `Task has been deleted successfully.`,
+      });
+    }
+  };
 
   return (
     <DialogContent className="max-w-4xl lg:h-4/6 flex flex-col md:flex-row lg:justify-between text-right">
@@ -138,6 +151,13 @@ export default function AddTaskDialog({ data }: { data: Doc<"todos"> }) {
             </div>
           </div>
         ))}
+        <div className="flex gap-2 p-4 w-full justify-end">
+          <form onSubmit={(e) => handleDeleteTodo(e)}>
+            <Button variant={"outline"} type="submit">
+              <Trash2 className="w-4 h-4 text-rose-500" />
+            </Button>
+          </form>
+        </div>
       </div>
       <DialogFooter></DialogFooter>
     </DialogContent>

@@ -5,26 +5,15 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "../ui/textarea";
-import { CalendarIcon, Text } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -32,18 +21,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "../ui/separator";
-import { Dispatch, SetStateAction } from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { cn } from "@/lib/utils";
+import { useAction, useQuery } from "convex/react";
 import { format } from "date-fns";
-import { Calendar } from "../ui/calendar";
-import { Doc, Id } from "../../../convex/_generated/dataModel";
-import { useMutation, useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
-import { createATodo } from "../../../convex/todos";
+import { CalendarIcon, Text } from "lucide-react";
 import moment from "moment";
+import { Dispatch, SetStateAction } from "react";
 import { toast } from "sonner";
+import { api } from "../../../convex/_generated/api";
+import { Doc, Id } from "../../../convex/_generated/dataModel";
+import { Calendar } from "../ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Separator } from "../ui/separator";
+import { Textarea } from "../ui/textarea";
+import { GET_STARTED_PROJECT_ID } from "@/utils";
 
 const FormSchema = z.object({
   taskName: z.string().min(2, { message: "Task name is too short" }),
@@ -57,13 +48,16 @@ const FormSchema = z.object({
 export default function AddTaskInline({
   setShowAddTask,
   parentTask,
+  projectId: MyProjectId,
 }: {
   setShowAddTask: Dispatch<SetStateAction<boolean>>;
   parentTask?: Doc<"todos">;
+  projectId?: Id<"projects">;
 }) {
   const projectId =
+    MyProjectId ||
     parentTask?.projectId ||
-    ("k17ch9ed55btcgnct2t5v8jdbs6w0vwp" as Id<"projects">);
+    (GET_STARTED_PROJECT_ID as Id<"projects">);
   const labelId =
     parentTask?.labelId || ("jx71gafy5py7cak8q8mem7xetn6w144y" as Id<"labels">);
   const priority = parentTask?.priority?.toString() || "3";
@@ -71,8 +65,15 @@ export default function AddTaskInline({
   const projects = useQuery(api.projects.getProjects) ?? [];
   const labels = useQuery(api.labels.getLabels) ?? [];
 
-  const createATodoMutation = useMutation(api.todos.createATodo);
-  const createASubTodoMutation = useMutation(api.subTodos.createASubTodo);
+  // without using embedded
+  // const createATodoMutation = useMutation(api.todos.createATodo);
+  // const createASubTodoMutation = useMutation(api.subTodos.createASubTodo);
+
+  // with using embedded
+  const createASubTodoEmbeddings = useAction(
+    api.subTodos.createASubTodoAndEmbeddings
+  );
+  const createTodoEmbeddings = useAction(api.todos.createTodoAndEmbeddings);
 
   const defaultValues = {
     taskName: "",
@@ -90,7 +91,7 @@ export default function AddTaskInline({
       description: "",
       priority,
       dueDate: new Date(),
-      projectId: "k17ch9ed55btcgnct2t5v8jdbs6w0vwp" as Id<"projects">,
+      projectId,
       labelId: "jx71gafy5py7cak8q8mem7xetn6w144y" as Id<"labels">,
     },
   });
@@ -101,7 +102,7 @@ export default function AddTaskInline({
 
     if (projectId) {
       if (parentId) {
-        const mutationId = createASubTodoMutation({
+        const mutationId = createASubTodoEmbeddings({
           taskName,
           description,
           priority: parseInt(priority),
@@ -117,7 +118,7 @@ export default function AddTaskInline({
           form.reset({ ...defaultValues });
         }
       } else {
-        const mutationId = createATodoMutation({
+        const mutationId = createTodoEmbeddings({
           taskName,
           description,
           priority: parseInt(priority),

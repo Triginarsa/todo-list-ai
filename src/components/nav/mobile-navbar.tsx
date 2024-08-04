@@ -14,8 +14,15 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { primaryNavItems } from "@/utils";
 import { Dialog, DialogTrigger } from "../ui/dialog";
 import SearchForm from "./search-form";
+import AddProjectDialog from "../projects/add-project-dialog";
 
-function MobileNavbar() {
+function MobileNavbar({
+  navTitle = "",
+  navLink = "#",
+}: {
+  navTitle?: string;
+  navLink?: string;
+}) {
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
       <Sheet>
@@ -37,12 +44,10 @@ function MobileNavbar() {
                 <span>{item.name}</span>
               </Link>
             ))}
-            <Dialog>
-              <DialogTrigger id="closeDialog">
-                <PlusIcon className="w-4 h-4 text-primary" />
-              </DialogTrigger>
-              {/* <AddProjectDialog /> */}
-            </Dialog>
+            <div className="flex items-center mt-6 mb-2">
+              <p className="flex flex-1 text-base">&quot;My Projects&quot;</p>
+              <AddProjectDialog />
+            </div>
           </nav>
           <div className="mt-auto">
             <Card>
@@ -64,9 +69,9 @@ function MobileNavbar() {
       </Sheet>
       <div className="flex items-center md:justify-between w-full gap-1 md:gap-2 py-2">
         <div className="lg:flex-1">
-          <Link href="/logged-in/projects">
+          <Link href={navLink}>
             <p className="text-sm font-semibold text-foreground/70 w-24">
-              / {"  "} My Projects
+              {navTitle}
             </p>
           </Link>
         </div>
@@ -81,5 +86,3 @@ function MobileNavbar() {
 }
 
 export default MobileNavbar;
-
-//timestamp: 5:43:08

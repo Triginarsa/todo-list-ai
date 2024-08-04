@@ -5,9 +5,21 @@ import { Toaster } from "@/components/ui/sonner";
 
 const plusJakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
+const ORIGIN_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://todo.triginarsa.com"
+    : "http://localhost:3000";
+
 export const metadata: Metadata = {
   title: "todolist",
   description: "A simple todolist app with AI features",
+  icons: {
+    icon: "/favicon.ico",
+  },
+  metadataBase: new URL(ORIGIN_URL),
+  alternates: {
+    canonical: ORIGIN_URL,
+  },
 };
 
 export default function RootLayout({

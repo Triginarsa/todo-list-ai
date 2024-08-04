@@ -1,8 +1,10 @@
 import { GenericQueryCtx } from "convex/server";
 import { Id } from "./_generated/dataModel";
-import { query, mutation } from "./_generated/server";
+import { query, mutation, action } from "./_generated/server";
 import { GenericId, v } from "convex/values";
 import { handleUserId } from "./auth";
+import { getEmbeddingsWithAi } from "./openai";
+import { api } from "./_generated/api";
 
 export const get = query({
   args: {},
@@ -100,11 +102,21 @@ export const createASubTodo = mutation({
     projectId: v.id("projects"),
     labelId: v.id("labels"),
     parentId: v.id("todos"),
+    embedding: v.optional(v.array(v.float64())),
   },
 
   handler: async (
     ctx,
-    { taskName, description, priority, dueDate, projectId, labelId, parentId }
+    {
+      taskName,
+      description,
+      priority,
+      dueDate,
+      projectId,
+      labelId,
+      parentId,
+      embedding,
+    }
   ) => {
     try {
       const userId = await handleUserId(ctx);
@@ -121,11 +133,44 @@ export const createASubTodo = mutation({
         projectId,
         labelId,
         isCompleted: false,
+        embedding,
       });
       return newTaskId;
     } catch (error) {
       console.log("Error in createASubTodo", error);
       return null;
     }
+  },
+});
+
+export const createASubTodoAndEmbeddings = action({
+  args: {
+    taskName: v.string(),
+    description: v.optional(v.string()),
+    priority: v.number(),
+    dueDate: v.number(),
+    projectId: v.id("projects"),
+    labelId: v.id("labels"),
+    parentId: v.id("todos"),
+    embedding: v.optional(v.array(v.float64())),
+  },
+
+  handler: async (
+    ctx,
+    { taskName, description, priority, dueDate, projectId, labelId, parentId }
+  ) => {
+    const embedding = await getEmbeddingsWithAi(taskName);
+    await ctx.runMutation(api.subTodos.createASubTodo, {
+      parentId,
+      taskName,
+      description,
+      priority,
+      dueDate,
+      projectId,
+      labelId,
+      embedding,
+    });
+
+    console.log(embedding);
   },
 });

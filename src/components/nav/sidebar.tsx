@@ -19,6 +19,7 @@ import { api } from "../../../convex/_generated/api";
 import { use, useEffect, useState } from "react";
 import { Doc } from "../../../convex/_generated/dataModel";
 import { Dialog, DialogTrigger } from "../ui/dialog";
+import AddProjectDialog from "../projects/add-project-dialog";
 
 interface MyListTitleType {
   [key: string]: string;
@@ -73,12 +74,7 @@ export default function Sidebar() {
                     {LIST_OF_TITLE_IDS[item.id]}
                   </p>
                   {LIST_OF_TITLE_IDS[item.id] === "My Projects" && (
-                    <Dialog>
-                      <DialogTrigger id="closeDialog">
-                        <PlusIcon className="w-4 h-4 text-primary" />
-                      </DialogTrigger>
-                      {/* <AddProjectDialog /> */}
-                    </Dialog>
+                    <AddProjectDialog />
                   )}
                 </div>
               )}

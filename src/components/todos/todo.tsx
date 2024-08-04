@@ -3,7 +3,7 @@ import { Checkbox } from "../ui/checkbox";
 import { Doc } from "../../../convex/_generated/dataModel";
 import { Dialog, DialogTrigger } from "@radix-ui/react-dialog";
 import clsx from "clsx";
-import { GitBranch, Calendar } from "lucide-react";
+import { GitBranch, Calendar, CalendarClockIcon } from "lucide-react";
 import moment from "moment";
 import AddTaskDialog from "../add-task/add-task-dialog";
 
@@ -58,7 +58,7 @@ function Todo({
                   <div className="flex gap-2">
                     <div className="flex items-center justify-center gap-1">
                       <GitBranch className="w-3 h-3 text-foreground/70" />
-                      <p className="text-xs text-foreground/70"></p>
+                      <p className="text-xs text-foreground/70">1</p>
                     </div>
                     <div className="flex items-center justify-center gap-1">
                       <Calendar className="w-3 h-3 text-primary" />
@@ -72,7 +72,6 @@ function Todo({
             </DialogTrigger>
           </div>
           {!isSubTodo(data) && <AddTaskDialog data={data} />}
-          {/* {!data?.parentId && <AddTaskDialog data={data} />} */}
         </div>
       </Dialog>
     </div>

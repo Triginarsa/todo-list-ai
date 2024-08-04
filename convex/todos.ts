@@ -1,9 +1,11 @@
 import { GenericQueryCtx } from "convex/server";
 import { Id } from "./_generated/dataModel";
-import { query, mutation } from "./_generated/server";
+import { query, mutation, action } from "./_generated/server";
 import { GenericId, v } from "convex/values";
 import { handleUserId } from "./auth";
 import moment from "moment";
+import { getEmbeddingsWithAi } from "./openai";
+import { api } from "./_generated/api";
 
 export const get = query({
   args: {},
@@ -223,11 +225,12 @@ export const createATodo = mutation({
     dueDate: v.number(),
     projectId: v.id("projects"),
     labelId: v.id("labels"),
+    embedding: v.optional(v.array(v.float64())),
   },
 
   handler: async (
     ctx,
-    { taskName, description, priority, dueDate, projectId, labelId }
+    { taskName, description, priority, dueDate, projectId, labelId, embedding }
   ) => {
     try {
       const userId = await handleUserId(ctx);
@@ -243,10 +246,58 @@ export const createATodo = mutation({
         projectId,
         labelId,
         isCompleted: false,
+        embedding,
       });
       return newTaskId;
     } catch (error) {
       console.log("Error in createATodo", error);
+      return null;
+    }
+  },
+});
+
+export const createTodoAndEmbeddings = action({
+  args: {
+    taskName: v.string(),
+    description: v.optional(v.string()),
+    priority: v.number(),
+    dueDate: v.number(),
+    projectId: v.id("projects"),
+    labelId: v.id("labels"),
+    embedding: v.optional(v.array(v.float64())),
+  },
+
+  handler: async (
+    ctx,
+    { taskName, description, priority, dueDate, projectId, labelId }
+  ) => {
+    const embedding = await getEmbeddingsWithAi(taskName);
+    await ctx.runMutation(api.todos.createATodo, {
+      taskName,
+      description,
+      priority,
+      dueDate,
+      projectId,
+      labelId,
+      embedding,
+    });
+
+    console.log(embedding);
+  },
+});
+
+export const deleteATodo = mutation({
+  args: { todoId: v.id("todos") },
+  handler: async (ctx, { todoId }) => {
+    try {
+      const userId = await handleUserId(ctx);
+      if (!userId) {
+        return null;
+      }
+      const deleteTodoId = await ctx.db.delete(todoId);
+      return deleteTodoId;
+    } catch (error) {
+      console.log("Error in deleteATodo", error);
       return null;
     }
   },

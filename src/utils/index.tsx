@@ -24,3 +24,5 @@ export const primaryNavItems = [
     icon: <Grid2X2 className="h-4 w-4" />,
   },
 ];
+
+export const GET_STARTED_PROJECT_ID = "k17ch9ed55btcgnct2t5v8jdbs6w0vwp";
